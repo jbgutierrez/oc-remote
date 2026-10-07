@@ -1,0 +1,23 @@
+app/src/main/kotlin/dev/minios/ocremote/ui/screens/chat/ChatViewModel.kt
+  s_fb0aa6cf5d288f::t_808992a11a05cf 1175-1178,1758-1762
+app/src/main/kotlin/dev/minios/ocremote/ui/screens/sessions/SessionListViewModel.kt
+  s_fb0aa6cf5d288f::t_9ae6cd48d101c7 44-46,86-91,94
+app/src/test/kotlin/dev/minios/ocremote/ui/screens/sessions/SessionProjectGroupingTest.kt
+  s_fb0aa6cf5d288f::t_9cb1d455cc4d25 60-139
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "714292b327075be32c31bf3f5b1cc07ad4795cad",
+  "prompts": {},
+  "sessions": {
+    "s_fb0aa6cf5d288f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ee9d14b3bffeuFa1K1iW5jTpwb",
+        "model": "unknown"
+      },
+      "human_author": "Javier Blanco <javierbgut@inditex.com>"
+    }
+  }
+}
