@@ -1,0 +1,18 @@
+app/src/main/kotlin/dev/minios/ocremote/data/api/OpenCodeApi.kt
+  h_feb372f2dbb988 1087-1088,1091
+app/src/main/kotlin/dev/minios/ocremote/data/api/OpenCodeV2Api.kt
+  h_feb372f2dbb988 426-427
+app/src/main/kotlin/dev/minios/ocremote/ui/screens/chat/ChatViewModel.kt
+  h_feb372f2dbb988 671,979,987-1003
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "66c5bc9a286f38ab774749e6c863e6ae4b9f11eb",
+  "prompts": {},
+  "humans": {
+    "h_feb372f2dbb988": {
+      "author": "Javier Blanco <javierbgut@inditex.com>"
+    }
+  }
+}
