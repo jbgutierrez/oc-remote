@@ -46,7 +46,7 @@ internal class OpenCodeV2Api(private val client: HttpClient, private val json: J
         val response = client.request("${conn.baseUrl}$path") {
             this.method = method
             conn.authHeader?.let { header(HttpHeaders.Authorization, it) }
-            directory?.let { parameter("location[directory]", it) }
+            directory?.let { header("x-opencode-directory", it) }
             query.forEach { (key, value) -> value?.let { parameter(key, it) } }
             headers.forEach { (key, value) -> header(key, value) }
             body?.let { contentType(ContentType.Application.Json); setBody(it) }
@@ -106,7 +106,7 @@ internal class OpenCodeV2Api(private val client: HttpClient, private val json: J
         client.prepareRequest("${conn.baseUrl}$path") {
             this.method = method
             conn.authHeader?.let { header(HttpHeaders.Authorization, it) }
-            directory?.let { parameter("location[directory]", it) }
+            directory?.let { header("x-opencode-directory", it) }
             query.forEach { (key, value) -> value?.let { parameter(key, it) } }
             body?.let { contentType(ContentType.Application.Json); setBody(it) }
         }.execute { response ->
@@ -148,8 +148,8 @@ internal class OpenCodeV2Api(private val client: HttpClient, private val json: J
         return projects(conn).firstOrNull { it.id == projectId } ?: error("Current OpenCode project is unavailable")
     }
 
-    suspend fun agents(conn: ServerConnection): List<AgentInfo> =
-        payload(conn, "/api/agent").data().jsonArray.map { V2Protocol.agent(json, it.jsonObject) }
+    suspend fun agents(conn: ServerConnection, directory: String? = null): List<AgentInfo> =
+        payload(conn, "/api/agent", directory = directory).data().jsonArray.map { V2Protocol.agent(json, it.jsonObject) }
 
     suspend fun sessions(conn: ServerConnection, directory: String? = null, parentId: String? = "null"): List<Session> {
         val result = mutableListOf<Session>()
@@ -209,16 +209,17 @@ internal class OpenCodeV2Api(private val client: HttpClient, private val json: J
 
     @OptIn(ExperimentalSerializationApi::class)
     private suspend fun messagePagePayload(conn: ServerConnection, sessionId: String, limit: Int, before: String?,
-        maxResponseBytes: Long,
+        maxResponseBytes: Long, directory: String? = null,
     ): JsonObject = client.prepareGet("${conn.baseUrl}/api/session/${id(sessionId)}/message") {
         conn.authHeader?.let { header(HttpHeaders.Authorization, it) }
+        directory?.let { header("x-opencode-directory", it) }
         parameter("limit", limit); parameter("order", "desc")
         before?.let { parameter("cursor", it) }
     }.execute { response ->
         verifyResponse(response)
         if ((response.contentLength() ?: 0) > maxResponseBytes && limit > 1) {
             response.bodyAsChannel().cancel(null)
-            return@execute messagePagePayload(conn, sessionId, (limit / 2).coerceAtLeast(1), before, maxResponseBytes)
+            return@execute messagePagePayload(conn, sessionId, (limit / 2).coerceAtLeast(1), before, maxResponseBytes, directory)
         }
         val raw = withContext(Dispatchers.IO) { File.createTempFile("oc-v2-messages-", ".json") }
         var transformed: File? = null
@@ -241,9 +242,9 @@ internal class OpenCodeV2Api(private val client: HttpClient, private val json: J
     }
 
     suspend fun messagesPage(conn: ServerConnection, sessionId: String, limit: Int?, before: String?,
-        maxResponseBytes: Long = 32L * 1024 * 1024,
+        maxResponseBytes: Long = 32L * 1024 * 1024, directory: String? = null,
     ): MessagePage {
-        val page = messagePagePayload(conn, sessionId, limit ?: 100, before, maxResponseBytes)
+        val page = messagePagePayload(conn, sessionId, limit ?: 100, before, maxResponseBytes, directory)
         var parentId = ""
         val messages = page.data().jsonArray.map { it.jsonObject }
             .sortedWith(compareBy({ it["time"]?.jsonObject?.get("created")?.jsonPrimitive?.longOrNull ?: 0 }, { it.str("id") }))
@@ -486,7 +487,7 @@ internal class OpenCodeV2Api(private val client: HttpClient, private val json: J
             url("$wsBase/api/pty/${id(ptyId)}/connect")
             conn.authHeader?.let { header(HttpHeaders.Authorization, it) }
             parameter("cursor", cursor); parameter("ticket", token)
-            directory?.let { parameter("location[directory]", it) }
+            directory?.let { header("x-opencode-directory", it) }
         }
         return PtySocket(socket)
     }

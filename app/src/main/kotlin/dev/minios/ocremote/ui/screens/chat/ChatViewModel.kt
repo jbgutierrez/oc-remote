@@ -973,7 +973,7 @@ class ChatViewModel @Inject constructor(
 
     private suspend fun loadAgents() {
         try {
-            val agents = api.listAgents(conn)
+            val agents = api.listAgents(conn, sessionDirectory)
             _agents.value = agents
             if (BuildConfig.DEBUG) Log.d(TAG, "Loaded ${agents.size} agents: ${agents.map { it.name }}")
         } catch (e: Exception) {

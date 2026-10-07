@@ -174,10 +174,11 @@ class OpenCodeApi @Inject constructor(
      * GET /agent
      * Returns agents filtered to primary/visible ones for the mode selector.
      */
-    suspend fun listAgents(conn: ServerConnection): List<AgentInfo> {
-        if (isV2(conn)) return v2.agents(conn)
+    suspend fun listAgents(conn: ServerConnection, directory: String? = null): List<AgentInfo> {
+        if (isV2(conn)) return v2.agents(conn, directory)
         return httpClient.get("${conn.baseUrl}/agent") {
             conn.authHeader?.let { header("Authorization", it) }
+            directory?.let { header("x-opencode-directory", it) }
         }.body()
     }
 
@@ -577,7 +578,7 @@ class OpenCodeApi @Inject constructor(
         directory: String? = null,
     ): MessagePage {
         if (isV2(conn)) return v2.messagesPage(conn, sessionId, limit, before,
-            settingsRepository.messageHistoryResponseLimitMb.first() * BYTES_PER_MEGABYTE)
+            settingsRepository.messageHistoryResponseLimitMb.first() * BYTES_PER_MEGABYTE, directory)
         val maxResponseBytes = settingsRepository.messageHistoryResponseLimitMb.first() * BYTES_PER_MEGABYTE
         return listMessagesPage(conn, sessionId, limit, before, directory, maxResponseBytes)
     }
