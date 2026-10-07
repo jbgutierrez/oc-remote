@@ -1,0 +1,19 @@
+app/src/main/kotlin/dev/minios/ocremote/data/api/OpenCodeV2Api.kt
+  s_5e505d56723229::t_1f993ad6c869cd 49,109,151-152,212,215,222,245,247,490
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "67f75db5d619f9b7b184a9e3df4f8ef00c14cfe2",
+  "prompts": {},
+  "sessions": {
+    "s_5e505d56723229": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_ee8c7cb5fffe3b9HHjK6E4g2A9",
+        "model": "unknown"
+      },
+      "human_author": "Javier Blanco <javierbgut@inditex.com>"
+    }
+  }
+}
