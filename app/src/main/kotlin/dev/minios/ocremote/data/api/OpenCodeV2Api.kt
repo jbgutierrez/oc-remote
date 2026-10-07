@@ -423,8 +423,8 @@ internal class OpenCodeV2Api(private val client: HttpClient, private val json: J
         status.str("status") == "complete"
     }
 
-    suspend fun config(conn: ServerConnection): ServerConfigResponse {
-        val entries = payload(conn, "/api/config").jsonArray
+    suspend fun config(conn: ServerConnection, directory: String? = null): ServerConfigResponse {
+        val entries = payload(conn, "/api/config", directory = directory).jsonArray
         val config = entries.fold(JsonObject(emptyMap())) { result, entry ->
             val info = entry.jsonObject["info"] as? JsonObject ?: JsonObject(emptyMap())
             JsonObject(result + info)

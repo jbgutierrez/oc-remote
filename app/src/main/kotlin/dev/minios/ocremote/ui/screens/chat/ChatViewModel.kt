@@ -668,6 +668,7 @@ class ChatViewModel @Inject constructor(
             if (session.directory.isNotBlank()) {
                 sessionDirectory = session.directory
                 if (BuildConfig.DEBUG) Log.d(TAG, "Session directory resolved")
+                resolveDefaultAgent()
             }
             val sessions = mutableListOf(session)
             val queue = ArrayDeque<String>().apply { add(session.id) }
@@ -975,10 +976,28 @@ class ChatViewModel @Inject constructor(
         try {
             val agents = api.listAgents(conn, sessionDirectory)
             _agents.value = agents
+            resolveDefaultAgent()
             if (BuildConfig.DEBUG) Log.d(TAG, "Loaded ${agents.size} agents: ${agents.map { it.name }}")
         } catch (e: Exception) {
             e.rethrowCancellation()
             Log.e(TAG, "Failed to load agents", e)
+        }
+    }
+
+    /** Align the agent selector with the project's default agent unless the user picked one. */
+    private suspend fun resolveDefaultAgent() {
+        val (_, explicit) = _selectedAgent.value
+        if (explicit) return
+        try {
+            val defaultAgent = api.getConfig(conn, sessionDirectory).defaultAgent ?: return
+            val known = _agents.value.any { it.name == defaultAgent && !it.hidden }
+            if (known && _selectedAgent.value.first != defaultAgent) {
+                _selectedAgent.value = defaultAgent to false
+                if (BuildConfig.DEBUG) Log.d(TAG, "Agent selector aligned to server default: $defaultAgent")
+            }
+        } catch (e: Exception) {
+            e.rethrowCancellation()
+            Log.e(TAG, "Failed to resolve default agent", e)
         }
     }
 

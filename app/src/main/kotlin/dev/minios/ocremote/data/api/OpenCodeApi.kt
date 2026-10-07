@@ -1084,10 +1084,11 @@ class OpenCodeApi @Inject constructor(
      * Get current server config.
      * GET /config
      */
-    suspend fun getConfig(conn: ServerConnection): ServerConfigResponse {
-        if (isV2(conn)) return v2.config(conn)
+    suspend fun getConfig(conn: ServerConnection, directory: String? = null): ServerConfigResponse {
+        if (isV2(conn)) return v2.config(conn, directory)
         return httpClient.get("${conn.baseUrl}/config") {
             conn.authHeader?.let { header("Authorization", it) }
+            directory?.let { header("x-opencode-directory", it) }
         }.body()
     }
 
